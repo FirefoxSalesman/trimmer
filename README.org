@@ -1,0 +1,6 @@
+* Trimmer
+A small C program to trim away un-needed information from CSV files.
+Trimmer is specifically tailored for the grade reports used by my institution. It may require modification before it is useful to you.
+
+* Bugs
+A few.

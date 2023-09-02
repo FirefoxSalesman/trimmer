@@ -1,0 +1,109 @@
+#+title: Trimmer
+#+author: Carson Holscher
+#+PROPERTY: header-args:C :tangle ~/projects/trimmer/trimmer.c
+
+* Includes
+This program uses stdio, string, & stdlib
+
+#+begin_src C
+  #include <stdio.h>
+  #include <string.h>
+  #include <stdlib.h>
+#+end_src
+
+* Count the number of commas
+Count the number of commas in a given line. Without any assignments in a file, there should be 7.
+#+begin_src C
+  /**
+   ,* Counts the number of commas in the input string.
+   ,*/
+  int count_commas(char* input) {
+    int i = 0;
+    int count = 0;
+    while(input[i] != '\0') {
+      if (input[i] == ',') count++;
+      i++;
+    }
+    return count;
+  }
+#+end_src
+
+* Get the length of the email address
+Gives the number of characters in the email address & the student's grades to /remove commas/ so that it knows how much memory to allocate to a given line of text
+#+begin_src C
+  /**
+   * Returns the length of the email address & the grades
+   */
+  int email_len(char* input, int commas) {
+    int i = 0;
+    int count = 0;
+    while (count < commas) {
+      if (input[i] == ',') count++;
+      i++;
+    }
+    return i;
+  }
+#+end_src
+
+* Remove some commas
+Using the comma count, remove commas from the input string. Malloc & return an output string.
+Don't forget to free when you're done.
+#+begin_src C
+  /**
+   ,* Returns a string containing everything after the 1st 5 commas.
+   ,* This string is located on the heap.
+   ,*/
+  char* remove_commas (char* input) {
+    int commas = count_commas(input);
+    int count = 0;
+    int i = 0;
+    while (count < 5) {
+      if (input[i] == ',') count++;
+      i++;
+    }
+
+    input += i;
+    int len = email_len(input, commas - 5);
+    char* clean = malloc(len);
+    memcpy(clean, input, len-1);
+    clean[len] = '\0';
+    return clean;
+  }
+#+end_src
+
+* TODO Loop through the file.
+Create a loop & fread the file into a buffer.
+Malloc another array & put the desired text into it.
+Write the array to a new file.
+Free the array.
+
++ Due to the lines in the file getting so large, it would be good to find a way to malloc the buffer instead of editing & recompiling the code
+
+#+begin_src C
+  void main(int argc, char** argv) {
+    if (argc != 2) {
+      printf("Usage: trimmer infile outfile\n");
+      return;
+    }
+
+    FILE* infile = fopen(argv[1], "r");
+    if (infile == NULL) {
+      printf("%s: No such file or directory.\n", argv[1]);
+      return;
+    }
+
+    /* FILE* outfile = fopen(argv[2], "w"); */
+    char buf[256];
+    while(fgets(buf, 255, infile) != NULL) {
+      int i = 0;
+      while (buf[i] != '\n') i++;
+      buf[i] = '\0';
+      if (count_commas(buf) != 0) {
+        char* clean = remove_commas(buf);
+        printf("%s\n", clean);
+        free(clean);
+      }
+    }
+    fclose(infile);
+  }
+#+end_src
